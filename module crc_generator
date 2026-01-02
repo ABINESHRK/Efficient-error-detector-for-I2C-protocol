@@ -1,0 +1,31 @@
+module crc_generator (
+    input wire clk,
+    input wire reset,
+    input wire [15:0] data_in,
+    input wire [3:0] poly,
+    output reg [19:0] data_out
+);
+    reg [18:0] dividend;  
+    reg [3:0] divisor;
+    reg [2:0] crc_rem;
+    integer i;
+    always @(posedge clk) begin
+        if (reset) begin
+            data_out <= 20'b0;
+        end else begin
+            dividend = {data_in, 3'b000};
+            divisor = poly;
+            for (i = 18; i >= 3; i = i - 1) begin
+                if (dividend[i]) begin
+                    dividend[i   ] = dividend[i   ] ^ divisor[3];
+                    dividend[i-1 ] = dividend[i-1 ] ^ divisor[2];
+                    dividend[i-2 ] = dividend[i-2 ] ^ divisor[1];
+                    dividend[i-3 ] = dividend[i-3 ] ^ divisor[0];
+                end
+            end
+            crc_rem = dividend[2:0];
+            data_out <= {data_in, crc_rem};
+            data_out <= {data_in, crc_rem, 1'b0}; 
+        end
+    end
+endmodule
