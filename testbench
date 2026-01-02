@@ -1,0 +1,42 @@
+`timescale 1ns / 1ps
+module tb_crc_generator;
+    reg clk;
+    reg reset;
+    reg [15:0] data_in;
+    reg [3:0] poly;
+    wire [19:0] data_out;
+    crc_generator uut (
+        .clk(clk),
+        .reset(reset),
+        .data_in(data_in),
+        .poly(poly),
+        .data_out(data_out)
+    );
+    always #5 clk = ~clk;
+    reg [15:0] test_data [0:9];
+    reg [3:0]  test_poly [0:9];
+    integer i;
+    initial begin
+        clk = 0;
+        reset = 1;
+        data_in = 0;
+        poly = 0;
+        #20 reset = 0;
+        test_data[0] = 16'b0000000000000000;  test_poly[0] = 4'b1101;
+        test_data[1] = 16'b0000000000010010;  test_poly[1] = 4'b1101;
+        test_data[2] = 16'b0000111100001111;  test_poly[2] = 4'b1001;
+        test_data[3] = 16'b1010101010101010;  test_poly[3] = 4'b1011;
+        test_data[4] = 16'b1111000011110000;  test_poly[4] = 4'b1110;
+        test_data[5] = 16'b1111111111111111;  test_poly[5] = 4'b1101;
+        test_data[6] = 16'b0000111111110000;  test_poly[6] = 4'b1010;
+        test_data[7] = 16'b1000000000000001;  test_poly[7] = 4'b1001;
+        test_data[8] = 16'b0111111111111110;  test_poly[8] = 4'b1111;
+        test_data[9] = 16'b0101010101010101;  test_poly[9] = 4'b1101;
+        for (i = 0; i < 10; i = i + 1) begin
+            data_in = test_data[i];
+            poly = test_poly[i];
+            #20;
+        end
+        #40 $finish;
+    end
+endmodule
